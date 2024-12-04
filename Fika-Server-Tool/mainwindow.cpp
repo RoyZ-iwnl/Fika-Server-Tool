@@ -4,18 +4,31 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-
+#include <QTranslator>
+#include <QLocale>
+#include <QLibraryInfo>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , manager(new QNetworkAccessManager(this))
 {
-    ui->setupUi(this); // 调用放在最开始
-
+    ui->setupUi(this);
 
     // 设置窗口标题
     setWindowTitle(tr("Fika Server Tool"));
+
+    // 设置固定大小
+    setFixedSize(740, 340);
+
+    // 初始化语言选项
+    ui->comboBoxLanguage->addItem("English", "en");
+    ui->comboBoxLanguage->addItem("中文", "zh_CN");
+
+    connect(ui->comboBoxLanguage, SIGNAL(currentIndexChanged(int)), this, SLOT(on_comboBoxLanguage_currentIndexChanged(int)));
+
+    // 默认设置语言
+    setLanguage("en");
 
     // 设置label的文本为可翻译的字符串
     ui->labelIP->setText(tr("IP"));
@@ -23,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->labelINFO->setText(tr("Online Info："));
     ui->labelNOTIFY->setText(tr("Notification"));
     ui->labelICON->setText(tr("Icon"));
+    ui->labelLanguage->setText(tr("Language"));
 
     // 添加ComboBox项目
     ui->comboBox->addItem(tr("Default"), EFTNotificationIconType::Default);
@@ -103,4 +117,20 @@ void MainWindow::handleNetworkData(QNetworkReply* reply)
 
     ui->textBrowser->setText(displayText);
     reply->deleteLater();
+}
+
+void MainWindow::on_comboBoxLanguage_currentIndexChanged(int index)
+{
+    QString language = ui->comboBoxLanguage->itemData(index).toString();
+    setLanguage(language);
+}
+
+void MainWindow::setLanguage(const QString &language)
+{
+    if (translator.load(":/translations/translation_" + language + ".qm")) {
+        qApp->installTranslator(&translator);
+    }
+
+    // 更新UI
+    ui->retranslateUi(this);
 }

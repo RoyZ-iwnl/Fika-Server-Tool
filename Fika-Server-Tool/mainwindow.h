@@ -41,11 +41,15 @@ public:
 private slots:
     void on_pushButtonCONNECT_clicked();
     void on_pushButtonSEND_clicked();
+    void on_comboBoxLanguage_currentIndexChanged(int index);
     void handleNetworkData(QNetworkReply* reply);
 
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
+    QTranslator translator;
+
+    void setLanguage(const QString &language);
 };
 
 #endif // MAINWINDOW_H
